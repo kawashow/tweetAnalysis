@@ -4,9 +4,12 @@ from tweet_analysis.manipulate_csv import ManipulateCsv
 
 # Create your views here.
 def index(request):
-    csv_name = 'muni_gurume'
+    csv_name = 'muni_gurume.csv'
     instance = ManipulateCsv(csv_name)
-    data_set = instance.get_data_set()
-    return HttpResponse("Hello, world. You're at the polls index."
-                        "<br>"+
-                        str(*data_set))
+    descr = instance.get_df_describe()
+    df = instance.get_data_frame()
+    result_text = 'あHello. Tweet analysis result below.<br>' \
+                  'favorite mean:{0}<br>' \
+                  'favorite max:{1}'.format(descr.at['mean','favorite'],df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
+
+    return HttpResponse(result_text)
