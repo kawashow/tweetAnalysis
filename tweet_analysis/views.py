@@ -13,3 +13,8 @@ def index(request):
                   'favorite max:{1}'.format(descr.at['mean','favorite'],df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
 
     return HttpResponse(result_text)
+
+def detail(request, question_id):
+    return HttpResponse("You're looking at question %s." % question_id)
+
+
