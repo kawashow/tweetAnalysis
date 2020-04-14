@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.template import loader
 from tweet_analysis.manipulate_csv import ManipulateCsv
 
 # Create your views here.
@@ -11,10 +12,12 @@ def index(request):
     result_text = 'あHello. Tweet analysis result below.<br>' \
                   'favorite mean:{0}<br>' \
                   'favorite max:{1}'.format(descr.at['mean','favorite'],df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
-
-    return HttpResponse(result_text)
+    template = loader.get_template('tweet_analysis/index.html')
+    context = {
+        'mean': str(descr.at['mean','favorite']),
+        'max' : df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'],
+    }
+    return render(request, 'tweet_analysis/index.html', context)
 
 def detail(request, question_id):
     return HttpResponse("You're looking at question %s." % question_id)
-
-
