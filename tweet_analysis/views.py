@@ -9,9 +9,6 @@ def index(request):
     instance = ManipulateCsv(csv_name)
     descr = instance.get_df_describe()
     df = instance.get_data_frame()
-    result_text = 'あHello. Tweet analysis result below.<br>' \
-                  'favorite mean:{0}<br>' \
-                  'favorite max:{1}'.format(descr.at['mean','favorite'],df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
     template = loader.get_template('tweet_analysis/index.html')
     context = {
         'mean': str(descr.at['mean','favorite']),
