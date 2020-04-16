@@ -5,16 +5,17 @@ import sys
 import re
 import traceback
 import logging
+import dbconf
 
 '''
   from csv file to db
 '''
 
-HOST = 'localhost'
-PORT = '5432'
-DB_NAME = 'gurume_db'
-USER_NAME = 'connect_user'
-DB_PASS = 'connect_user'
+HOST = conf.HOST
+PORT = conf.PORT
+DB_NAME = conf.DB_NAME
+USER_NAME = conf.USER_NAME
+DB_PASS = conf.DB_PASS
 
 # db name and sql
 INSERT_QUERY = 'insert into {0} values ({1})'
@@ -55,7 +56,7 @@ class InsertTweets():
             for index, line in enumerate(reader):
                 if index == 0:
                     continue
-                print(line[5])
+
                 if line[REPLY_STATUS_COLUMN_NUM] != '':
                     print('reply')
                     insert_value = line[ID_COLUMN_NUM] + ',\'' + line[5] + '\',\'' + line[TEXT_COLUMN_NUM] + '\',\'' + line[

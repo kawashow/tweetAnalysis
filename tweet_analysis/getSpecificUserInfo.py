@@ -17,23 +17,21 @@ ACCESS_SECRET = twitterApi.ACCESS_SECRET
 CSV_EXTENSION = '.csv'
 MEDIA_DIR = '/appl/scripts/media/'
 
-'''
-get user's tweets from twitter and output to csv file
-'''
-
-
 class GetUserInfo():
-
+    '''
+    get user's tweets from twitter and output to csv file
+    '''
+    
     def __init__(self):
         self.num = 0  # 取得するツイートを計算する
         # 全ツイートを入れる空のリストを用意
         self.all_tweets = []
 
-    '''
-      get user's tweets from Twitter and output header to csv
-    '''
-
     def get_tweets(self):
+        '''
+        get user's tweets from Twitter and output header to csv
+        '''
+
         auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
         auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
         api = tweepy.API(auth)
@@ -47,7 +45,7 @@ class GetUserInfo():
         # media_file_name = account + '_media' + CSV_EXTENSION
         print(account)
         # tweet_mode='extended'を設定することで、tweetが切れないかつ、画像も取得できる。
-        tweets = api.user_timeline(account, count=200, tweet_mode='extended')  # ※3
+        tweets = api.user_timeline(account, count=200, tweet_mode='extended')
 
         # ファイルにツイートを出力。エクセルでの文字化け防止のためBOM付utf8で作成
         with open(tweets_file_name, mode='w', encoding='utf_8_sig')as f:
@@ -66,11 +64,14 @@ class GetUserInfo():
                 self.output_tweet(tweets, tweets_writer)
                 print(self.num, 'ツイート表示しました。')
 
-    '''
-        output tweets to csv file
-    '''
+
 
     def output_tweet(self, tweets, tweets_writer):
+        '''
+        output tweets to csv file
+        '''
+
+
         self.all_tweets.extend(tweets)
         for tweet in tweets:
             tweet.created_at += timedelta(hours=9)
@@ -112,9 +113,8 @@ class GetUserInfo():
                         [tweet.id_str, output_text, str(tweet.favorite_count), str(tweet.retweet_count),
                          str(tweet.created_at), tweet.in_reply_to_status_id_str])
                 self.num += 1
-    '''
-       
-    '''
+
+
     def download_media(self, media_url):
         pic_name = media_url.split('/')[-1]
         dst_path = MEDIA_DIR + pic_name
