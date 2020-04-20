@@ -13,8 +13,9 @@ class ManipulateCsv():
         self.CSV_FILE_PATH = self.CSV_DIR + self.csv_name
 
     def get_data_frame(self):
+        # tweetの最大文字数が200文字のため
+        pd.set_option("display.max_colwidth", 250)
         df = pd.read_csv(self.CSV_FILE_PATH)
-        print(df.info())
         return df
 
     def get_df_describe(self):

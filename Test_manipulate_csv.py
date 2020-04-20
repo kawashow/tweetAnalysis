@@ -7,11 +7,15 @@ descr = instance.get_df_describe()
 print(descr.at['mean','favorite'])
 print(descr.at['mean','retweet_count'])
 print(descr.at['max', 'favorite'])
-print(type(descr))
+print(descr)
 
 df =instance.get_data_frame()
 
-print(df.info())
-print(df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
 
+#print(df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
+print('------------------------')
+print(df[df['favorite'] == descr.at['max', 'favorite']])
+print(df[df['favorite'] == descr.at['max', 'favorite']]['tweet_text'])
+print(type(df.loc[df['favorite'] == descr.at['max', 'favorite'],'tweet_text']))
+print(df.loc[df['favorite'] == descr.at['max', 'favorite']].iloc[0,1])
 

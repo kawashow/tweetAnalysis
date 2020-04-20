@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>your tweet information</h1>
+    <p>fovorite average : {{mean}}</p>
+    <p>favorite max :{{max}}</p>
+    <p>favorite max text :{{max_text}}</p>
+    <a href="{% url 'tweet_analysis:register_result' 'muni_gurume' %}">register_result</a>
+    <a href="{% url 'tweet_analysis:index' %}">topへ</a>
+</body>
+</html>
+
+    
