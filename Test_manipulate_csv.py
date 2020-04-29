@@ -1,7 +1,7 @@
 import unittest
 from tweet_analysis.manipulate_csv import ManipulateCsv
 
-instance = ManipulateCsv('muni_gurume.csv')
+instance = ManipulateCsv('muni_gurume_old.csv')
 
 descr = instance.get_df_describe()
 print(descr.at['mean','favorite'])
