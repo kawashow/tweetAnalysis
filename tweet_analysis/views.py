@@ -4,6 +4,7 @@ from django.template import loader
 from tweet_analysis.manipulate_csv import ManipulateCsv
 from tweet_analysis.models import AnalysisResult
 from django.utils import timezone
+from tweet_analysis.get_specific_user_info import GetSpecificUserInfo
 
 # todo create csv conf py file
 INDEX_TWEET_TEXT = 1
@@ -11,27 +12,41 @@ INDEX_TWEET_TEXT = 1
 
 # Create your views here.
 def index(request):
-    template = loader.get_template('tweet_analysis/index.html')
     context = {}
     return render(request, 'tweet_analysis/index.html', context)
 
 
-def detail(request, csv_name):
+def detail(request):
     """
     csv データをブラウザに表示させる
     :param request:
-    :param csv_name:
     :return:
     """
-    csv_name = csv_name + '.csv'
+    twitter_usr_id = request.POST['csv_name']
+
+    # twitter apiを使用しcsv出力
+    instance = GetSpecificUserInfo(twitter_usr_id)
+    ret = instance.main()
+    if ret:
+        api_result = 'api success'
+    else:
+        api_result = '存在しないユーザです。'
+        context = {
+            'api_result': api_result
+        }
+        return render(request, 'tweet_analysis/detail.html', context)
+
+    # csv_name = csv_name + '.csv'
+    csv_name = twitter_usr_id + '.csv'
     instance = ManipulateCsv(csv_name)
     descr = instance.get_df_describe()
     df = instance.get_data_frame()
-    template = loader.get_template('tweet_analysis/detail.html')
+
     context = {
         'mean': str(descr.at['mean', 'favorite']),
         'max': int(descr.at['max', 'favorite']),
         'max_text': df[df['favorite'] == descr.at['max', 'favorite']].iloc[0, INDEX_TWEET_TEXT],
+        'api_result': api_result
     }
     return render(request, 'tweet_analysis/detail.html', context)
 

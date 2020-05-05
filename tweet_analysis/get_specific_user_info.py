@@ -14,6 +14,9 @@ ACCESS_KEY = twitterApi.ACCESS_KEY
 ACCESS_SECRET = twitterApi.ACCESS_SECRET
 
 CSV_EXTENSION = '.csv'
+TWEET_CSV_HEADER = ['id_str', 'tweet_text', 'favorite', 'retweet_count', 'Data', 'in_reply_to_status_id_str',
+                    'media_id',
+                    'media_url']
 
 # not used path
 MEDIA_DIR = '/appl/scripts/media/'
@@ -23,57 +26,48 @@ MEDIA_DIR = '/appl/scripts/media/'
 # todo ログを吐く場所
 class GetSpecificUserInfo():
     """
-    get user's tweets info from twitter and output to csv file
+    get user's tweets info from twitter and output to csv file.
+    If to_csv is False, return tweets list.
     """
-    
-    def __init__(self, account):
-        self.num = 0  # 取得するツイートを計算する
+
+    def __init__(self, account, to_csv=True):
+        """
+        :param account: tweeter account name
+        :param to_csv:  output to csv flag
+        """
+        # 取得するツイートを計算する
+        self.num = 0
         # 全ツイートを入れる空のリストを用意
         self.all_tweets = []
         # twitter user account id
         self.account = account
+        # 出力用のリスト
+        self.output_list = []
+        # output to csv flag
+        self.to_csv = to_csv
 
-    def main(self):
+    def download_media(self, media_url):
         """
-        get user's tweets from Twitter and output header to csv
+        画像DL処理は重いため採用を保留
+        :param media_url:
+        :return:
         """
-
-        auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-        auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-        api = tweepy.API(auth)
-
-        tweets_file_path = 'tweet_analysis/csv/' + self.account + CSV_EXTENSION
-        # tweet_mode='extended'を設定することで、tweetが切れないかつ、画像も取得できる。
+        pic_name = media_url.split('/')[-1]
+        dst_path = MEDIA_DIR + pic_name
         try:
-            tweets = api.user_timeline(self.account, count=200, tweet_mode='extended')
-        except tweepy.error.TweepError as e:
+            with urllib.request.urlopen(media_url) as web_file:
+                data = web_file.read()
+                with open(dst_path, mode='wb') as local_file:
+                    local_file.write(data)
+        except urllib.error.URLError as e:
             print(e)
-            # abnormal end
-            return False
+            print(media_url)
 
-        # ファイルにツイートを出力。エクセルでの文字化け防止のためBOM付utf8で作成
-        with open(tweets_file_path, mode='w', encoding='utf_8_sig')as f:
-            tweets_writer = csv.writer(f)
-            # header
-            tweets_writer.writerow(
-                ['id_str', 'tweet_text', 'favorite', 'retweet_count', 'Data', 'in_reply_to_status_id_str', 'media_id',
-                 'media_url'])
-            self.output_tweet(tweets, tweets_writer)
-
-            # get every 200 tweets
-            while len(tweets) > 0:
-                # tweet_mode='extended'を設定することで、tweetが切れないかつ、画像も取得できる。
-                tweets = api.user_timeline(self.account, count=200, max_id=self.all_tweets[-1].id - 1,
-                                           tweet_mode='extended')
-                self.output_tweet(tweets, tweets_writer)
-                print(self.num, 'ツイート表示しました。')
-
-        # normal end
-        return True
-
-    def output_tweet(self, tweets, tweets_writer):
+    def set_tweet(self, tweets):
         """
-        output tweets to csv file
+        tweetの情報を取捨選択、整形し、リストにセットする。
+        :param tweets: tweet200件の情報
+        :return:
         """
 
         self.all_tweets.extend(tweets)
@@ -102,31 +96,69 @@ class GetSpecificUserInfo():
 
                     # 画像のDLは重い処理のため省略
                     # self.download_media(media_url)
-                    tweets_writer.writerow([tweet.id_str, output_text, str(tweet.favorite_count), str(tweet.retweet_count),
-                                           str(tweet.created_at), tweet.in_reply_to_status_id_str,
-                                           tweet.entities['media'][0]['id_str'],
-                                           str(media_url)])
+                    self.output_list.append(
+                        [tweet.id_str, output_text, str(tweet.favorite_count), str(tweet.retweet_count),
+                         str(tweet.created_at), tweet.in_reply_to_status_id_str,
+                         tweet.entities['media'][0]['id_str'],
+                         str(media_url)])
+
                 except KeyError:
                     # if a tweet doesn't have media , output tweet info except media
-                    tweets_writer.writerow(
+                    self.output_list.append(
                         [tweet.id_str, output_text, str(tweet.favorite_count), str(tweet.retweet_count),
                          str(tweet.created_at), tweet.in_reply_to_status_id_str])
                 self.num += 1
 
-    def download_media(self, media_url):
+    def output_csv(self):
         """
-        画像DL処理は重いため採用を保留
-        :param media_url:
+        output tweets list to csv file
         :return:
         """
-        pic_name = media_url.split('/')[-1]
-        dst_path = MEDIA_DIR + pic_name
-        try:
-            with urllib.request.urlopen(media_url) as web_file:
-                data = web_file.read()
-                with open(dst_path, mode='wb') as local_file:
-                    local_file.write(data)
-        except urllib.error.URLError as e:
-            print(e)
-            print(media_url)
+        tweets_file_path = 'tweet_analysis/csv/' + self.account + CSV_EXTENSION
+        # ファイルにツイートを出力。エクセルでの文字化け防止のためBOM付utf8で作成
+        with open(tweets_file_path, mode='w', encoding='utf_8_sig')as f:
+            tweets_writer = csv.writer(f)
+            for tweet_row in self.output_list:
+                tweets_writer.writerow(tweet_row)
 
+    def main(self):
+        """
+        get user's tweets from Twitter and output header to csv.
+        If to_csv is False, return tweets list.
+        :return: normal end: True
+                 abnormal end: False
+        """
+
+        auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+        auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+        api = tweepy.API(auth)
+
+        # tweet_mode='extended'を設定することで、tweetが切れないかつ、画像も取得できる。
+        try:
+            tweets = api.user_timeline(self.account, count=200, tweet_mode='extended')
+        except tweepy.error.TweepError as e:
+            print(e)
+            # abnormal end
+            return False
+
+        # header
+        self.output_list.append(TWEET_CSV_HEADER)
+
+        # 直近200ツイートの情報をリストにセット
+        self.set_tweet(tweets)
+
+        # get every 200 tweets
+        while len(tweets) > 0:
+            # tweet_mode='extended'を設定することで、tweetが切れないかつ、画像も取得できる。
+            tweets = api.user_timeline(self.account, count=200, max_id=self.all_tweets[-1].id - 1,
+                                       tweet_mode='extended')
+            self.set_tweet(tweets)
+            print(self.num, 'ツイート表示しました。')
+
+        # csv出力フラグがあれば、ファイルにツイートを出力。それ以外はtweetリストを返す。
+        if self.to_csv:
+            self.output_csv()
+            # normal end
+            return True
+        else:
+            return self.output_list

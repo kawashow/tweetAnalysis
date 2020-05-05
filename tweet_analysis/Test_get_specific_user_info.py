@@ -14,6 +14,14 @@ class TestGetSpecificUserInfo(unittest.TestCase):
         ret = instance.main()
         self.assertEqual(False, ret)
 
+    def test_exist_usr_not_csv(self):
+        instance = GetSpecificUserInfo('aa', to_csv=False)
+        ret = instance.main()
+        self.assertEqual([['id_str', 'tweet_text', 'favorite', 'retweet_count', 'Data', 'in_reply_to_status_id_str',
+                           'media_id', 'media_url'], ['1212767867940343808',
+                                                      "Damn, I was trying to tweet something important on the first day of the new decade. I guess I missed it, will have to wait until 2030.",
+                                                      '12', '2', '2020-01-03 01:09:26', None]], ret)
+
 
 if __name__ == '__main__':
     unittest.main()

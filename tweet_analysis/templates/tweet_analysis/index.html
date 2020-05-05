@@ -6,6 +6,14 @@
     <title>Welcome</title>
 </head>
 <body>
-    <a href="{% url 'tweet_analysis:detail' 'muni_gurume' %}">muni_gurume</a>
+    <a href="{% url 'tweet_analysis:detail' %}">muni_gurume</a>
+    <form action="{% url 'tweet_analysis:detail' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="csv_name" id="csv_name">
+        <input type="submit" value="tweet情報取得">
+    </form>
+    <div id="app"></div>
 </body>
+{% load static %}
+<script src="{% static 'frontend/main.js' %}"></script>
 </html>

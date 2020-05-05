@@ -23,7 +23,9 @@ RUN apk update \
     #&& pip --no-cache-dir install pandas --no-build-isolation \
     # && pip install pandas \
     && apk del build-deps \
-    && apk add git
+    && apk add git \
+    && apk add nodejs npm \
+    && apk add vim
 
 #RUN pip install numpy
 
