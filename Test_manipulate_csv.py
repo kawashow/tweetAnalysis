@@ -1,21 +1,19 @@
 import unittest
 from tweet_analysis.manipulate_csv import ManipulateCsv
 
-instance = ManipulateCsv('muni_gurume_old.csv')
 
-descr = instance.get_df_describe()
-print(descr.at['mean','favorite'])
-print(descr.at['mean','retweet_count'])
-print(descr.at['max', 'favorite'])
-print(descr)
+class TestManipulateCsv(unittest.TestCase):
+    def test_convert_list_to_df(self):
+        tweet_list = [['favorite', 1, 2], ['3', '4', '5']]
+        instance = ManipulateCsv()
+        df = instance.convert_list_to_df(tweet_list)
+        print(df)
 
-df =instance.get_data_frame()
+    def test_get_data_frame(self):
+        instance = ManipulateCsv('muni_gurume.csv')
+        df = instance.get_data_frame()
+        print(df)
 
 
-#print(df[df['favorite'] == descr.at['max', 'favorite']].loc[:,'tweet_text'])
-print('------------------------')
-print(df[df['favorite'] == descr.at['max', 'favorite']])
-print(df[df['favorite'] == descr.at['max', 'favorite']]['tweet_text'])
-print(type(df.loc[df['favorite'] == descr.at['max', 'favorite'],'tweet_text']))
-print(df.loc[df['favorite'] == descr.at['max', 'favorite']].iloc[0,1])
-
+if __name__ == '__main__':
+    unittest.main()

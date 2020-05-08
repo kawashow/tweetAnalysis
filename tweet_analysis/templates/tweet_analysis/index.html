@@ -13,6 +13,13 @@
         <input type="submit" value="tweet情報取得">
     </form>
     <div id="app"></div>
+    <p>tweet 全件取得</p>
+    <form action="{% url 'tweet_analysis:tweetinfo' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="usr_id" id="usr_id">
+        <input type="submit" value="tweet情報取得">
+    </form>
+
 </body>
 {% load static %}
 <script src="{% static 'frontend/main.js' %}"></script>

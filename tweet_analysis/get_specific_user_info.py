@@ -14,7 +14,7 @@ ACCESS_KEY = twitterApi.ACCESS_KEY
 ACCESS_SECRET = twitterApi.ACCESS_SECRET
 
 CSV_EXTENSION = '.csv'
-TWEET_CSV_HEADER = ['id_str', 'tweet_text', 'favorite', 'retweet_count', 'Data', 'in_reply_to_status_id_str',
+TWEET_CSV_HEADER = ['id_str', 'tweet_text', 'favorite', 'RT', 'tweet_date', 'in_reply_to_status_id_str',
                     'media_id',
                     'media_url']
 
@@ -86,7 +86,7 @@ class GetSpecificUserInfo():
                     if text_data != '':
                         output_text += text_data
 
-                # escape ' because syntax error occur when insert into DB
+                # escape ' because syntax error occur when using pandas
                 if "'" in output_text:
                     output_text = output_text.replace("'", "''")
 
@@ -97,7 +97,7 @@ class GetSpecificUserInfo():
                     # 画像のDLは重い処理のため省略
                     # self.download_media(media_url)
                     self.output_list.append(
-                        [tweet.id_str, output_text, str(tweet.favorite_count), str(tweet.retweet_count),
+                        [tweet.id_str, output_text, tweet.favorite_count, tweet.retweet_count,
                          str(tweet.created_at), tweet.in_reply_to_status_id_str,
                          tweet.entities['media'][0]['id_str'],
                          str(media_url)])
@@ -105,8 +105,8 @@ class GetSpecificUserInfo():
                 except KeyError:
                     # if a tweet doesn't have media , output tweet info except media
                     self.output_list.append(
-                        [tweet.id_str, output_text, str(tweet.favorite_count), str(tweet.retweet_count),
-                         str(tweet.created_at), tweet.in_reply_to_status_id_str])
+                        [tweet.id_str, output_text, tweet.favorite_count, tweet.retweet_count,
+                         str(tweet.created_at), tweet.in_reply_to_status_id_str, '', ''])
                 self.num += 1
 
     def output_csv(self):

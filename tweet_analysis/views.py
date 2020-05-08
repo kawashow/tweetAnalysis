@@ -6,6 +6,12 @@ from tweet_analysis.models import AnalysisResult
 from django.utils import timezone
 from tweet_analysis.get_specific_user_info import GetSpecificUserInfo
 
+import logging
+
+# todo バグ調査用のロギングのため後で消す
+LOGFILE = 'man_debug.log'
+logging.basicConfig(filename=LOGFILE,level=logging.DEBUG)
+
 # todo create csv conf py file
 INDEX_TWEET_TEXT = 1
 
@@ -51,6 +57,44 @@ def detail(request):
     return render(request, 'tweet_analysis/detail.html', context)
 
 
+def tweetinfo(request):
+    """
+    csv データをブラウザに表示させる
+    :param request:
+    :return:
+    """
+    twitter_usr_id = request.POST['usr_id']
+
+    # twitter apiを使用しcsv出力
+    instance = GetSpecificUserInfo(twitter_usr_id, to_csv=False)
+    tweets_list = instance.main()
+    if tweets_list:
+        api_result = 'api success'
+    else:
+        api_result = '存在しないユーザまたは、ツイート情報を取得できないユーザです。'
+        context = {
+            'api_result': api_result,
+            'all_tweets_list': tweets_list,
+        }
+        return render(request, 'tweet_analysis/tweetinfo.html', context)
+
+    context = {
+        # headerの表示に必要なものだけ指定
+        'tweet_header': tweets_list[0][1:5],
+        'tweets_list': tweets_list[1:],
+        'api_result': api_result,
+        'usr_id': twitter_usr_id,
+        'all_tweets_list': tweets_list,
+    }
+
+    # 分析結果を追加
+    instance = ManipulateCsv()
+    analysis_context = instance.convert_list_to_df(tweets_list)
+    context.update(analysis_context)
+
+    return render(request, 'tweet_analysis/tweetinfo.html', context)
+
+
 def register_result(request, tweet_usr_id):
     """
     csvデータをDBに登録する
@@ -83,4 +127,20 @@ def register_result(request, tweet_usr_id):
         'create_date': value_create_date,
         'analysis_list': analysis_list,
     }
+
     return render(request, 'tweet_analysis/register_result.html', context)
+
+
+def analysis(request):
+    """
+    tweetの情報分析ページを表示する。
+    :param request:
+    :return:
+    """
+    all_tweets_list = request.POST['all_tweets_list']
+
+    instance = ManipulateCsv()
+    context = instance.convert_list_to_df(all_tweets_list)
+
+    return render(request, 'tweet_analysis/analysis.html', context)
+
