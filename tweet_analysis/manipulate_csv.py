@@ -50,19 +50,16 @@ class ManipulateCsv():
         """
         1行目はヘッダを想定。リストをデータフレームに変換し分析結果を返す
         :param all_tweets_list:
-        :return:辞書型の分析結果
+        :return:1 データフレーム,2 データフレーム情報
         """
         context = {'all_tweets_list': all_tweets_list}
         if len(all_tweets_list) == 0:
             return context
 
-        print(all_tweets_list[1:])
         df = pd.DataFrame(all_tweets_list[1:],
                           columns=all_tweets_list[0])
         desc = df.describe()
-        print(desc)
-        context = self.set_analysis_result(df, desc)
-        return context
+        return df, desc
 
 
 if __name__ == '__main__':

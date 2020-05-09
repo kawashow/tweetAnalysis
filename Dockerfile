@@ -16,7 +16,6 @@ RUN apk update \
     && apk add gcc g++ libstdc++ \
     # && apk add --update libstdc++.so.6 \
     && apk add postgresql-dev \
-    #&& pip install --upgrade pip \
     && pip install psycopg2 \
     #&& pip install numpy \
     #&& pip install cython \
@@ -25,7 +24,8 @@ RUN apk update \
     && apk del build-deps \
     && apk add git \
     && apk add nodejs npm \
-    && apk add vim
+    && apk add vim \
+    && apk add --update-cache freetype-dev
 
 #RUN pip install numpy
 

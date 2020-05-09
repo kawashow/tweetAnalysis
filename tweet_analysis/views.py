@@ -5,6 +5,9 @@ from tweet_analysis.manipulate_csv import ManipulateCsv
 from tweet_analysis.models import AnalysisResult
 from django.utils import timezone
 from tweet_analysis.get_specific_user_info import GetSpecificUserInfo
+from tweet_analysis.set_graph import SetGraph
+import matplotlib.pyplot as plt
+import pandas as pd
 
 import logging
 
@@ -57,7 +60,7 @@ def detail(request):
     return render(request, 'tweet_analysis/detail.html', context)
 
 
-def tweetinfo(request):
+def tweet_info(request):
     """
     csv データをブラウザに表示させる
     :param request:
@@ -78,6 +81,7 @@ def tweetinfo(request):
         }
         return render(request, 'tweet_analysis/tweetinfo.html', context)
 
+    instance.output_csv()
     context = {
         # headerの表示に必要なものだけ指定
         'tweet_header': tweets_list[0][1:5],
@@ -89,7 +93,8 @@ def tweetinfo(request):
 
     # 分析結果を追加
     instance = ManipulateCsv()
-    analysis_context = instance.convert_list_to_df(tweets_list)
+    df, desc = instance.convert_list_to_df(tweets_list)
+    analysis_context = instance.set_analysis_result(df, desc)
     context.update(analysis_context)
 
     return render(request, 'tweet_analysis/tweetinfo.html', context)
@@ -143,4 +148,14 @@ def analysis(request):
     context = instance.convert_list_to_df(all_tweets_list)
 
     return render(request, 'tweet_analysis/analysis.html', context)
+
+
+def get_svg(request, usr_id, column1, column2):
+    df = pd.read_csv('tweet_analysis/csv/{0}.csv'.format(usr_id))
+    graph_data1 = df[column1]
+    graph_data2 = df[column2]
+    sg_instance = SetGraph(graph_data1, column1, graph_data2, column2)
+    svg = sg_instance.main()
+    response = HttpResponse(svg, content_type='image/svg+xml')
+    return response  # convert plot to SVG
 
