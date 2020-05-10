@@ -66,7 +66,29 @@ def tweet_info(request):
     :param request:
     :return:
     """
-    twitter_usr_id = request.POST['usr_id']
+
+    def no_usr_id_handle():
+        """
+        create error message
+        :return: error messages
+        """
+        massage = 'ユーザのIDが取得できません。TOPに戻ってやり直してみてください。'
+        handle_context = {
+            'api_result': massage,
+        }
+        return handle_context
+
+    try:
+        twitter_usr_id = request.POST['usr_id']
+    # 情報画面で更新するとusr_idが取得できない。
+    except KeyError:
+        context = no_usr_id_handle()
+        return render(request, 'tweet_analysis/tweetinfo.html', context)
+
+    # 空検索されると後続で異常終了するためここで弾く。
+    if twitter_usr_id == '':
+        context = no_usr_id_handle()
+        return render(request, 'tweet_analysis/tweetinfo.html', context)
 
     # twitter apiを使用しcsv出力
     instance = GetSpecificUserInfo(twitter_usr_id, to_csv=False)

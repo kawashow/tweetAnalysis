@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/tweetinfo.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/header.css' %}">
+  <title>Document</title>
+</head>
+<body>
+  <header id="infoheader">
+    <h1 id="title">Your Tweet Information</h1>
+    <a href="{% url 'tweet_analysis:index' %}">topへ</a>
+  </header>
+  <div id="main">
+    <p>api_result: {{api_result}}</p>
+    
+    {% if all_tweets_list %}
+    <ul>
+      <li>平均fav数 : {{fv_mean}}</li>
+      <li>最大fav数 : {{fv_max}}</li>
+      <li>最大favツイート : {{fv_max_text}}</li>
+      <li>平均RT数 : {{rt_mean}}</li>
+      <li>最大RT数 : {{rt_max}}</li>
+      <li>最大RTツイート : {{rt_max_text}}</li>
+    </ul>
+    <img src="{% url 'tweet_analysis:plot' usr_id 'favorite' 'RT' %}" width=600 height=600>
+    
+    <p>RTを除く直近3200件のTweet情報</p>
+    <table border="2">
+      <thead>
+      <tr>
+        {% for header_col in tweet_header %}
+          <th>{{header_col}}</th>
+        {% endfor %}
+      </tr>
+      </thead>
+      <tbody>
+      {% for tweet_list in tweets_list %}
+        <tr> 
+          <td>{{tweet_list.1}}</td>
+          <td>{{tweet_list.2}}</td>
+          <td>{{tweet_list.3}}</td>
+          <td>{{tweet_list.4}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+   
+    <form action="{% url 'tweet_analysis:analysis' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="usr_id" id="usr_id">
+      <input type="hidden" name="all_tweets_list" id="all_tweets_list" value={{all_tweets_list}}>
+      <input type="submit" value="分析画面へ">
+    </form>
+  </div>
+</body>
+</html>

@@ -3,24 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
     <title>Welcome</title>
 </head>
 <body>
-    <a href="{% url 'tweet_analysis:detail' %}">muni_gurume</a>
-    <form action="{% url 'tweet_analysis:detail' %}" method="post">
-        {% csrf_token %}
-        <input type="text" name="csv_name" id="csv_name">
-        <input type="submit" value="tweet情報取得">
-    </form>
-    <div id="app"></div>
-    <p>tweet 全件取得</p>
-    <form action="{% url 'tweet_analysis:tweetinfo' %}" method="post">
-        {% csrf_token %}
-        <input type="text" name="usr_id" id="usr_id">
-        <input type="submit" value="tweet情報取得">
-    </form>
+    <header>
+      <h1 id=title>tweet 全件取得&分析サイト</h1>
+    </header>
+    <div id="main">
+     <!-- <form action="{% url 'tweet_analysis:detail' %}" method="post">
+          {% csrf_token %}
+          <input type="text" name="csv_name" id="csv_name">
+          <input type="submit" value="tweet情報取得">
+      </form>-->
+      <div id="app"></div>
+      
+      <h3>TwitterのユーザIDを入力してボタンをクリックしてね。</h3>
+      <h5>※鍵垢は検索できないよ</h5>
+      <form action="{% url 'tweet_analysis:tweetinfo' %}" method="post">
+          {% csrf_token %}
+          <input type="text" name="usr_id" id="usr_id">
+          <input type="submit" value="tweet情報取得" id="get_info">
+      </form>
+      <div id="wait">
+  
+      </div>
+    </div>
 
 </body>
-{% load static %}
 <script src="{% static 'frontend/main.js' %}"></script>
+<script src="{% static 'frontend/indexRaw.js' %}"></script>
 </html>
