@@ -11,7 +11,9 @@
 <body>
   <header id="infoheader">
     <h1 id="title">Your Tweet Information</h1>
-    <a href="{% url 'tweet_analysis:index' %}">topへ</a>
+    <div id="headbutton">
+      <a href="{% url 'tweet_analysis:index' %}">topへ</a>
+    </div>
   </header>
   <div id="main">
     <p>api_result: {{api_result}}</p>
@@ -26,7 +28,18 @@
       <li>最大RTツイート : {{rt_max_text}}</li>
     </ul>
     <img src="{% url 'tweet_analysis:plot' usr_id 'favorite' 'RT' %}" width=600 height=600>
-    
+
+    <form action="{% url 'tweet_analysis:register_result' usr_id %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name ="fv_mean" value={{fv_mean}}>
+      <input type="hidden" name ="fv_max" value={{fv_max}}>
+      <input type="hidden" name ="fv_max_text" value={{fv_max_text}}>
+      <input type="hidden" name ="rt_mean" value={{rt_mean}}>
+      <input type="hidden" name ="rt_max" value={{rt_max}}>
+      <input type="hidden" name ="rt_max_text" value={{rt_max_text}}>
+      <input type="submit" value="分析結果を登録">
+    </form>
+
     <p>RTを除く直近3200件のTweet情報</p>
     <table border="2">
       <thead>
@@ -47,7 +60,7 @@
       {% endfor %}
     </table>
     {% endif %}
-   
+
     <form action="{% url 'tweet_analysis:analysis' %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="usr_id" id="usr_id">

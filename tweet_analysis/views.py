@@ -27,6 +27,7 @@ def index(request):
 
 def detail(request):
     """
+    todo not used
     csv データをブラウザに表示させる
     :param request:
     :return:
@@ -124,11 +125,19 @@ def tweet_info(request):
 
 def register_result(request, tweet_usr_id):
     """
-    csvデータをDBに登録する
+    csv分析データをDBに登録する
     :param request:
     :param tweet_usr_id:
     :return:
     """
+    value_fv_max_count = request.POST['fv_max']
+    value_fv_max_text = request.POST['fv_max_text']
+    value_fv_avg = float(request.POST['fv_mean'])
+    rt_mean = float(request.POST['rt_mean'])
+    rt_max = request.POST['rt_max']
+    rt_max_text = request.POST['rt_max_text']
+
+    '''
     csv_name = tweet_usr_id + '.csv'
     instance = ManipulateCsv(csv_name)
     descr = instance.get_df_describe()
@@ -139,15 +148,16 @@ def register_result(request, tweet_usr_id):
     value_fv_max_count = descr.at['max', 'favorite']
     value_fv_max_text = max_row.iloc[0, INDEX_TWEET_TEXT]
     value_fv_avg = descr.at['mean', 'favorite']
+    '''
     value_create_date = timezone.now()
 
-    register_data = AnalysisResult(id_str=value_id_str, fv_max_count=value_fv_max_count,
+    register_data = AnalysisResult(rt_max_count=rt_max, fv_max_count=value_fv_max_count,
                                    fv_max_text=value_fv_max_text, fv_avg=value_fv_avg,
-                                   create_date=value_create_date, tweet_usr=tweet_usr_id)
+                                   create_date=value_create_date, tweet_usr=tweet_usr_id,
+                                   rt_max_text=rt_max_text, rt_avg=rt_mean)
     register_data.save()
     analysis_list = AnalysisResult.objects.all()
     context = {
-        'id_str': value_id_str,
         'fv_max_count': value_fv_max_count,
         'fv_max_text': value_fv_max_text,
         'fv_avg': value_fv_avg,
@@ -160,6 +170,7 @@ def register_result(request, tweet_usr_id):
 
 def analysis(request):
     """
+    todo not used
     tweetの情報分析ページを表示する。
     :param request:
     :return:
@@ -173,11 +184,19 @@ def analysis(request):
 
 
 def get_svg(request, usr_id, column1, column2):
+    """
+    指定されたユーザの2つの情報に関するplotを作成し、svg形式に変換する。
+    :param request:
+    :param usr_id: TwitterのユーザID
+    :param column1: fav,RTなどグラフ表示に使用する項目名
+    :param column2: fav,RTなどグラフ表示に使用する項目名
+    :return: svg形式のplotデータ
+    """
     df = pd.read_csv('tweet_analysis/csv/{0}.csv'.format(usr_id))
     graph_data1 = df[column1]
     graph_data2 = df[column2]
     sg_instance = SetGraph(graph_data1, column1, graph_data2, column2)
     svg = sg_instance.main()
     response = HttpResponse(svg, content_type='image/svg+xml')
-    return response  # convert plot to SVG
+    return response
 

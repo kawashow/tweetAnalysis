@@ -7,17 +7,18 @@
 </head>
 <body>
     Success!
-    <p>fv_max_count {{fv_max_count}}</p>
     <table border="1">
         <tr>
             <th>twitter user id</th>
             <th>max favorite num</th>
+            <th>max retweet num</th>
         </tr>
 
         {% for analysis in analysis_list %}
         <tr>
             <td>{{ analysis.tweet_usr }}</td>
             <td>{{ analysis.fv_max_count }}</td>
+            <td>{{ analysis.rt_max_count}}</td>
         </tr>
         {% endfor %}
     </table>
