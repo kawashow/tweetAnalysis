@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-Django = "==3.0.5"
+Django = "==3.0.12"
 numpy = "==1.18.2"
 pandas = "==1.0.3"
 tweepy = "==3.8.0"
